@@ -15,9 +15,9 @@ test("一键 Demo 和反馈后可以查看内测观察面板", async ({ page }) 
   await expect(page.getByRole("heading", { name: "首轮内测准备包" })).toBeVisible();
 
   await page.goto("/internal/test-plan");
-  await expect(page.getByRole("heading", { name: "第一轮内测任务清单" })).toBeVisible();
-  await expect(page.getByText("确认 /internal/readiness 全部没有失败项")).toBeVisible();
-  await page.getByRole("link", { name: "去反馈" }).click();
+  await expect(page.getByRole("heading", { name: "恐龙侠内测体验任务" })).toBeVisible();
+  await expect(page.getByText("请按顺序体验 15 分钟，最后留一条反馈")).toBeVisible();
+  await page.getByRole("link", { name: "提交反馈" }).click();
   await expect(page).toHaveURL(/\/feedback/);
 
   await page.getByLabel("反馈内容").fill("任务清单入口测试反馈。");

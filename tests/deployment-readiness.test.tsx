@@ -118,11 +118,14 @@ describe("真实内测部署检查", () => {
     expect(screen.getByText("首轮内测准备包")).toBeInTheDocument();
   });
 
-  it("/internal/test-plan 展示内测前准备提醒", () => {
+  it("/internal/test-plan 展示学生体验任务", () => {
     render(<InternalTestPlan />);
 
-    expect(screen.getByText("内测前准备")).toBeInTheDocument();
-    expect(screen.getByText("确认 /internal/readiness 全部没有失败项")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "恐龙侠内测体验任务" })).toBeInTheDocument();
+    expect(screen.getByText("请按顺序体验 15 分钟，最后留一条反馈")).toBeInTheDocument();
+    expect(screen.getByText(/完成一个小怪任务/)).toBeInTheDocument();
+    expect(screen.queryByText("内测前准备")).not.toBeInTheDocument();
+    expect(screen.queryByText(/internal\/readiness/)).not.toBeInTheDocument();
   });
 });
 

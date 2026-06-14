@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { CalendarClock, Eye, Plus, Shield } from "lucide-react";
+import { CalendarClock, Eye, Plus, Shield, Sparkles } from "lucide-react";
 
 import { BossHpBar } from "@/components/boss-hp-bar";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +13,7 @@ import {
   goalTypeLabels,
   statusLabels
 } from "@/lib/goals/goal-format";
-import { emptyStateText, errorStateText, loadingStateText } from "@/lib/ui/status-text";
+import { errorStateText, loadingStateText } from "@/lib/ui/status-text";
 import type { Goal } from "@/lib/types";
 
 type GoalManagerProps = {
@@ -80,7 +80,7 @@ export function GoalManager({ initialGoals }: GoalManagerProps) {
       {isLoading ? <StatusCard text={loadingStateText} /> : null}
       {!isLoading && error ? <StatusCard tone="error" text={error} /> : null}
       {!isLoading && !error && goals.length === 0 ? (
-        <StatusCard text={emptyStateText} />
+        <EmptyGoalsCard />
       ) : null}
 
       {!isLoading && !error && goals.length > 0 ? (
@@ -91,6 +91,35 @@ export function GoalManager({ initialGoals }: GoalManagerProps) {
         </section>
       ) : null}
     </div>
+  );
+}
+
+function EmptyGoalsCard() {
+  return (
+    <Card>
+      <CardContent className="space-y-4 p-4">
+        <div className="space-y-2">
+          <h2 className="text-xl font-bold leading-tight">还没有 Boss</h2>
+          <p className="text-sm text-muted-foreground">
+            还没有 Boss。先创建一个学习目标，恐龙侠会把它拆成战役。
+          </p>
+        </div>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <Button asChild className="w-full">
+            <Link href="/goals/new">
+              <Plus className="h-4 w-4" />
+              创建第一个 Boss
+            </Link>
+          </Button>
+          <Button asChild className="w-full" variant="secondary">
+            <Link href="/#demo">
+              <Sparkles className="h-4 w-4" />
+              一键体验恐龙侠
+            </Link>
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 

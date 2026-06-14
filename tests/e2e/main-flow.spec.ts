@@ -33,7 +33,7 @@ test("主流程：创建 Boss、生成战役、生成本周副本并完成今日
   await expect(page.getByText("目标：30 天通过英语四级")).toBeVisible();
 
   await page.getByRole("button", { name: "生成战役" }).click();
-  await expect(page.getByText("恐龙侠已使用本地模板生成战役。")).toBeVisible();
+  await expect(page.getByText("恐龙侠已为你生成 Boss 战役。")).toBeVisible();
   await expect(page.getByRole("heading", { name: "阶段关卡" })).toBeVisible();
   await expect(page.getByText("高频词速刷")).toBeVisible();
 

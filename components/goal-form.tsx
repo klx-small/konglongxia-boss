@@ -84,6 +84,9 @@ export function GoalForm() {
         <div className="space-y-2">
           <h1 className="text-3xl font-bold leading-tight">创建 Boss</h1>
           <p className="text-sm text-muted-foreground">填写目标后，恐龙侠会把它包装成 Boss。</p>
+          <p className="text-sm font-medium text-primary">
+            不知道怎么填？可以先写一个真实目标，比如‘两周后完成毛概论文初稿’。
+          </p>
         </div>
         <Button asChild className="shrink-0" variant="secondary">
           <Link href="/goals">
@@ -105,18 +108,25 @@ export function GoalForm() {
         </CardHeader>
         <CardContent>
           <form className="space-y-4" onSubmit={submitGoal}>
-            <label className="block space-y-1 text-sm font-medium">
-              <span>目标名称</span>
+            <div className="space-y-1">
+              <label className="block text-sm font-medium" htmlFor="goal-title">
+                目标名称
+              </label>
               <input
+                id="goal-title"
                 className="w-full rounded-lg border bg-background px-3 py-2"
                 onChange={(event) => updateForm("title", event.target.value)}
+                placeholder="例如：30 天通过英语四级 / 期末高数冲刺 / 完成论文初稿"
                 value={form.title}
               />
-            </label>
+            </div>
 
-            <label className="block space-y-1 text-sm font-medium">
-              <span>目标类型</span>
+            <div className="space-y-1">
+              <label className="block text-sm font-medium" htmlFor="goal-type">
+                目标类型
+              </label>
               <select
+                id="goal-type"
                 className="w-full rounded-lg border bg-background px-3 py-2"
                 onChange={(event) => updateForm("goalType", event.target.value as GoalType)}
                 value={form.goalType}
@@ -127,40 +137,57 @@ export function GoalForm() {
                   </option>
                 ))}
               </select>
-            </label>
+            </div>
 
-            <label className="block space-y-1 text-sm font-medium">
-              <span>截止日期</span>
+            <div className="space-y-1">
+              <label className="block text-sm font-medium" htmlFor="goal-deadline">
+                截止日期
+              </label>
               <input
+                id="goal-deadline"
                 className="w-full rounded-lg border bg-background px-3 py-2"
                 onChange={(event) => updateForm("deadline", event.target.value)}
                 type="date"
                 value={form.deadline}
               />
-            </label>
+              <p className="text-xs text-muted-foreground">Boss 会在这个日期前进入最终战。</p>
+            </div>
 
-            <label className="block space-y-1 text-sm font-medium">
-              <span>当前水平</span>
+            <div className="space-y-1">
+              <label className="block text-sm font-medium" htmlFor="goal-current-level">
+                当前水平
+              </label>
               <textarea
+                id="goal-current-level"
                 className="min-h-24 w-full rounded-lg border bg-background px-3 py-2"
                 onChange={(event) => updateForm("currentLevel", event.target.value)}
+                placeholder="例如：词汇薄弱，听力一般；高数基础一般，极限和导数不熟"
                 value={form.currentLevel}
               />
-            </label>
+            </div>
 
-            <label className="block space-y-1 text-sm font-medium">
-              <span>每天最多学习时间</span>
+            <div className="space-y-1">
+              <label className="block text-sm font-medium" htmlFor="goal-daily-minutes">
+                每天最多学习时间
+              </label>
               <input
+                id="goal-daily-minutes"
                 className="w-full rounded-lg border bg-background px-3 py-2"
                 min={25}
                 onChange={(event) => updateForm("dailyAvailableMinutes", Number(event.target.value))}
                 type="number"
                 value={form.dailyAvailableMinutes}
               />
-            </label>
+              <p className="text-xs text-muted-foreground">
+                填你愿意每天给这个目标安排的时间，例如 45 或 60 分钟。
+              </p>
+            </div>
 
             <div className="space-y-2">
               <p className="text-sm font-medium">强度选择</p>
+              <p className="text-xs text-muted-foreground">
+                轻松：每天少量推进；普通：稳定推进；冲刺：任务更多，适合 ddl 靠近。
+              </p>
               <div className="grid grid-cols-3 gap-2">
                 {intensities.map((intensity) => (
                   <Button
@@ -175,14 +202,17 @@ export function GoalForm() {
               </div>
             </div>
 
-            <label className="block space-y-1 text-sm font-medium">
-              <span>目标描述</span>
+            <div className="space-y-1">
+              <label className="block text-sm font-medium" htmlFor="goal-description">
+                目标描述
+              </label>
               <textarea
+                id="goal-description"
                 className="min-h-28 w-full rounded-lg border bg-background px-3 py-2"
                 onChange={(event) => updateForm("description", event.target.value)}
                 value={form.description}
               />
-            </label>
+            </div>
 
             <Button className="w-full" disabled={isSaving} type="submit">
               {isSaving ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Crosshair className="h-4 w-4" />}

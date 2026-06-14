@@ -1,14 +1,16 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
-import { CalendarDays, Swords } from "lucide-react";
+import { CalendarDays, Plus, Route, Swords } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getWeekdayLabel } from "@/lib/courses/course-format";
 import { taskTypeLabels } from "@/lib/goals/goal-format";
-import { emptyStateText, errorStateText, loadingStateText } from "@/lib/ui/status-text";
-import type { Course, ScheduleBlock, Task } from "@/lib/types";
+import { errorStateText, loadingStateText } from "@/lib/ui/status-text";
+import type { Course, Goal, ScheduleBlock, Task } from "@/lib/types";
 
 type ScheduleResponse = {
   scheduleBlocks?: ScheduleBlock[];
@@ -17,34 +19,32 @@ type ScheduleResponse = {
   error?: string;
 };
 
+type GoalsResponse = {
+  goals?: Goal[];
+  error?: string;
+};
+
 export function ScheduleBoard() {
   const [scheduleBlocks, setScheduleBlocks] = useState<ScheduleBlock[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [unscheduledTasks, setUnscheduledTasks] = useState<Task[]>([]);
+  const [emptyActionGoalId, setEmptyActionGoalId] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     let isMounted = true;
 
-    fetch("/api/schedule")
-      .then(async (response) => {
-        const data = (await response.json()) as ScheduleResponse;
-
-        if (!response.ok) {
-          throw new Error(data.error ?? errorStateText);
-        }
-
-        return data;
-      })
-      .then((data) => {
+    Promise.all([fetchSchedule(), fetchGoalsForEmptyAction()])
+      .then(([scheduleData, goals]) => {
         if (!isMounted) {
           return;
         }
 
-        setScheduleBlocks(data.scheduleBlocks ?? []);
-        setCourses(data.courses ?? []);
-        setUnscheduledTasks(data.unscheduledTasks ?? []);
+        setScheduleBlocks(scheduleData.scheduleBlocks ?? []);
+        setCourses(scheduleData.courses ?? []);
+        setUnscheduledTasks(scheduleData.unscheduledTasks ?? []);
+        setEmptyActionGoalId(goals.find((goal) => (goal.tasks ?? []).length > 0)?.id ?? "");
         setError("");
       })
       .catch((requestError: unknown) => {
@@ -77,7 +77,7 @@ export function ScheduleBoard() {
       {isLoading ? <StatusCard text={loadingStateText} /> : null}
       {!isLoading && error ? <StatusCard tone="error" text={error} /> : null}
       {!isLoading && !error && scheduleBlocks.length === 0 ? (
-        <StatusCard text={emptyStateText} />
+        <EmptyScheduleCard goalId={emptyActionGoalId} />
       ) : null}
 
       {!isLoading && !error && scheduleBlocks.length > 0 ? (
@@ -156,6 +156,36 @@ function DayPlan({
   );
 }
 
+function EmptyScheduleCard({ goalId }: { goalId: string }) {
+  return (
+    <Card>
+      <CardContent className="space-y-4 p-4">
+        <div className="space-y-2">
+          <h2 className="text-xl font-bold leading-tight">还没有本周副本</h2>
+          <p className="text-sm text-muted-foreground">
+            还没有本周副本。先进入 Boss 详情页生成战役和本周副本。
+          </p>
+        </div>
+        {goalId ? (
+          <Button asChild className="w-full">
+            <Link href={`/goals/${goalId}`}>
+              <Route className="h-4 w-4" />
+              去生成本周副本
+            </Link>
+          </Button>
+        ) : (
+          <Button asChild className="w-full">
+            <Link href="/goals/new">
+              <Plus className="h-4 w-4" />
+              创建 Boss
+            </Link>
+          </Button>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 function CourseItem({ course }: { course: Course }) {
   return (
     <article className="rounded-lg border bg-background p-3">
@@ -206,6 +236,32 @@ function StatusCard({ text, tone = "default" }: { text: string; tone?: "default"
       </CardContent>
     </Card>
   );
+}
+
+async function fetchSchedule(): Promise<ScheduleResponse> {
+  const response = await fetch("/api/schedule");
+  const data = (await response.json()) as ScheduleResponse;
+
+  if (!response.ok) {
+    throw new Error(data.error ?? errorStateText);
+  }
+
+  return data;
+}
+
+async function fetchGoalsForEmptyAction(): Promise<Goal[]> {
+  try {
+    const response = await fetch("/api/goals");
+    const data = (await response.json()) as GoalsResponse;
+
+    if (!response.ok) {
+      return [];
+    }
+
+    return data.goals ?? [];
+  } catch {
+    return [];
+  }
 }
 
 function nextSevenDays(): string[] {

@@ -253,16 +253,8 @@ export function GoalDetail({ goalId }: GoalDetailProps) {
 }
 
 function getCampaignMessage(data: GoalResponse): string {
-  if (data.source === "deepseek") {
-    return "DeepSeek 已为你生成 Boss 战役。";
-  }
-
-  if (data.source === "fallback") {
-    return "AI 暂时不可用，恐龙侠已使用本地模板生成战役。";
-  }
-
-  if (data.source === "mock") {
-    return "恐龙侠已使用本地模板生成战役。";
+  if (data.source) {
+    return "恐龙侠已为你生成 Boss 战役。";
   }
 
   return data.message ?? "恐龙侠已拆解 Boss 战役！";

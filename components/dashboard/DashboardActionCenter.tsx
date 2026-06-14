@@ -25,6 +25,8 @@ export function DashboardActionCenter({ snapshot }: DashboardActionCenterProps) 
         </div>
       </section>
 
+      <DemoSetupButton />
+
       <Card>
         <CardContent className="space-y-4 p-4">
           <div className="flex items-start gap-3">
@@ -45,7 +47,6 @@ export function DashboardActionCenter({ snapshot }: DashboardActionCenterProps) 
         </CardContent>
       </Card>
 
-      <DemoSetupButton />
       <OnboardingChecklist snapshot={snapshot} />
     </div>
   );

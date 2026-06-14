@@ -296,9 +296,13 @@ describe("内测观察分析", () => {
   it("/internal/test-plan 能渲染任务清单", () => {
     render(<InternalTestPlan />);
 
-    expect(screen.getByRole("heading", { name: "第一轮内测任务清单" })).toBeInTheDocument();
-    expect(screen.getByText(/打开首页，体验“一键体验恐龙侠”/)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "去反馈" })).toHaveAttribute("href", "/feedback");
+    expect(screen.getByRole("heading", { name: "恐龙侠内测体验任务" })).toBeInTheDocument();
+    expect(screen.getByText("请按顺序体验 15 分钟，最后留一条反馈")).toBeInTheDocument();
+    expect(screen.getByText(/点击“一键体验恐龙侠”/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "提交反馈" })).toHaveAttribute("href", "/feedback");
+    expect(screen.queryByRole("link", { name: "Debug" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Analytics" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Readiness" })).not.toBeInTheDocument();
   });
 });
 
