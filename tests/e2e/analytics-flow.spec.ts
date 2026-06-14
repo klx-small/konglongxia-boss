@@ -9,8 +9,14 @@ test.afterAll(async () => {
 test("一键 Demo 和反馈后可以查看内测观察面板", async ({ page }) => {
   await runNpmScript("db:reset");
 
+  await page.goto("/internal/readiness");
+  await expect(page.getByRole("heading", { name: "真实内测部署检查" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "部署检查项" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "首轮内测准备包" })).toBeVisible();
+
   await page.goto("/internal/test-plan");
   await expect(page.getByRole("heading", { name: "第一轮内测任务清单" })).toBeVisible();
+  await expect(page.getByText("确认 /internal/readiness 全部没有失败项")).toBeVisible();
   await page.getByRole("link", { name: "去反馈" }).click();
   await expect(page).toHaveURL(/\/feedback/);
 

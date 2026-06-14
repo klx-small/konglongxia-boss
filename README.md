@@ -122,9 +122,11 @@ FEEDBACK_URL="https://example.com/feedback"
 
 - `/debug`：查看数据库状态、AI Provider、DeepSeek Key 是否配置、事件数、AI 来源统计、Onboarding 漏斗和最近战斗日志
 - `/internal/checklist`：查看内测检查清单，包括数据库、Health API、课程、Boss、战役、本周副本、今日副本、反馈能力、AnalyticsEvent、AI 配置
+- `/internal/readiness`：查看真实内测部署检查，包括 DATABASE_URL 状态、数据库连接、mock 用户、AI Provider、反馈入口、埋点、Demo 数据和 internal 开关
 - `/api/internal/metrics`：返回内测基础统计 JSON
 - `/internal/analytics`：查看内测观察面板，包括核心漏斗、AI 稳定性、补救机制、每日事件趋势、最近反馈和最近事件流
 - `/api/internal/analytics`：返回内测观察面板 JSON，支持 `days` 和 `eventName` 查询参数
+- `/api/internal/deployment-readiness`：返回真实内测部署检查 JSON，不返回数据库密码或 API Key
 
 生产环境默认不开放 internal 能力。如果确实要在内测部署环境打开，可配置：
 
@@ -146,6 +148,7 @@ ENABLE_DEMO_SETUP="true"
 
 - 人数：5-10 人，优先找真实有课表和 DDL 的中文大学生。
 - 单人测试时长：15-20 分钟。
+- 部署前检查：打开 `/internal/readiness`，确认没有失败项；提醒项可以记录下来，不一定阻塞首轮内测。
 - 任务清单地址：打开 `/internal/test-plan`，按“第一轮内测任务清单”引导同学完成体验。
 - 反馈导出：在 `/internal/analytics` 点击“导出反馈 CSV”，或访问 `/api/internal/feedback/export`。
 - 异常事件：在 `/internal/analytics` 查看“内测异常提醒”，重点关注 AI fallback、DeepSeek 失败、missed 过多、Bug 反馈和未排入任务。
@@ -176,9 +179,11 @@ ENABLE_DEMO_SETUP="true"
 - 已运行 `npm.cmd run build`
 - 已运行 `npm.cmd run e2e`
 - `/api/health` 返回数据库正常
+- `/internal/readiness` 没有失败项
 - `/debug` 显示数据库已连接、AI Provider 正确、DeepSeek Key 状态正确、内测事件数正常
 - `/internal/checklist` 显示内测检查项
 - `/internal/analytics` 显示内测观察面板
+- `/internal/test-plan` 可以作为发给第一批内测同学的任务清单
 - 首页“一键体验恐龙侠”可以创建 Demo 或正确提示已有数据
 - `/feedback` 可以提交反馈
 - 手机宽度下 `/battle/today`、`/schedule`、`/courses`、`/goals` 不横向溢出

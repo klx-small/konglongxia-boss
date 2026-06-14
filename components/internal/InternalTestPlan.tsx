@@ -24,6 +24,14 @@ const testerQuestions = [
   "你最想删掉或增加什么功能？"
 ];
 
+const preflightTasks = [
+  "确认 /internal/readiness 全部没有失败项",
+  "确认 /api/health 数据库状态正常",
+  "确认 /internal/analytics 可以看到事件和反馈",
+  "准备 5-10 位中文大学生内测同学",
+  "告诉同学本轮体验控制在 15-20 分钟"
+];
+
 export function InternalTestPlan() {
   return (
     <div className="space-y-5">
@@ -47,6 +55,19 @@ export function InternalTestPlan() {
           </Button>
         </div>
       </section>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>内测前准备</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2 text-sm">
+          {preflightTasks.map((task) => (
+            <div className="rounded-lg bg-secondary p-3" key={task}>
+              {task}
+            </div>
+          ))}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
