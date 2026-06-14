@@ -1,0 +1,385 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum CourseSource {
+  MANUAL
+  IMAGE_IMPORT
+  TABLE_IMPORT
+}
+
+enum CourseWeekType {
+  all
+  odd
+  even
+}
+
+enum GoalType {
+  exam
+  certificate
+  homework
+  paper
+  project
+  habit
+  other
+}
+
+enum GoalIntensity {
+  relaxed
+  standard
+  sprint
+}
+
+enum GoalStatus {
+  active
+  completed
+  paused
+  failed
+}
+
+enum MilestoneStatus {
+  pending
+  active
+  completed
+}
+
+enum TaskType {
+  small_monster
+  elite_monster
+  daily_dungeon
+  boss_battle
+  rescue_dungeon
+}
+
+enum TaskStatus {
+  pending
+  scheduled
+  completed
+  skipped
+  overdue
+}
+
+enum ScheduleBlockStatus {
+  scheduled
+  completed
+  missed
+  rescheduled
+  cancelled
+}
+
+enum ScheduleBlockSource {
+  auto
+  manual
+  reschedule
+}
+
+enum BattleLogActionType {
+  boss_heal
+  quest_complete
+  rescue_schedule
+}
+
+enum FeedbackType {
+  bug
+  suggestion
+  confusing
+  like
+  other
+}
+
+enum BossStatus {
+  PLANNING
+  FIGHTING
+  DEFEATED
+  OVERDUE
+}
+
+enum StageTaskStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum DailyQuestStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  MISSED
+  RESCHEDULED
+}
+
+model User {
+  id                String             @id @default(cuid())
+  nickname          String
+  timezone          String             @default("Asia/Shanghai")
+  xp                Int                @default(0)
+  level             Int                @default(1)
+  semesters         Semester[]
+  courses           Course[]
+  goals             Goal[]
+  scheduleBlocks    ScheduleBlock[]
+  battleLogs        BattleLog[]
+  analyticsEvents   AnalyticsEvent[]
+  feedbacks         Feedback[]
+  bossGoals         BossGoal[]
+  battleSettlements BattleSettlement[]
+  createdAtUtc      DateTime           @default(now())
+  updatedAtUtc      DateTime           @updatedAt
+}
+
+model Semester {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  startDate DateTime
+  endDate   DateTime
+  timezone  String   @default("Asia/Shanghai")
+  courses   Course[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Course {
+  id         String         @id @default(cuid())
+  userId     String
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  semesterId String
+  semester   Semester       @relation(fields: [semesterId], references: [id], onDelete: Cascade)
+  name       String
+  teacher    String?
+  location   String?
+  weekday    Int
+  startTime  String
+  endTime    String
+  startWeek  Int
+  endWeek    Int
+  weekType   CourseWeekType @default(all)
+  color      String
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  @@index([userId, semesterId])
+  @@index([userId, weekday])
+}
+
+model Goal {
+  id                    String        @id @default(cuid())
+  userId                String
+  user                  User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title                 String
+  description           String?
+  goalType              GoalType
+  deadline              DateTime
+  currentLevel          String
+  dailyAvailableMinutes Int
+  intensity             GoalIntensity @default(standard)
+  status                GoalStatus    @default(active)
+  bossName              String
+  bossHp                Int
+  bossMaxHp             Int
+  difficulty            Int
+  milestones            Milestone[]
+  tasks                 Task[]
+  scheduleBlocks        ScheduleBlock[]
+  battleLogs            BattleLog[]
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  @@index([userId, status])
+  @@index([deadline])
+}
+
+model Milestone {
+  id          String          @id @default(cuid())
+  goalId      String
+  goal        Goal            @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  order       Int
+  dueDate     DateTime
+  status      MilestoneStatus @default(pending)
+  tasks       Task[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([goalId, order])
+}
+
+model Task {
+  id               String     @id @default(cuid())
+  goalId           String
+  goal             Goal       @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  milestoneId      String
+  milestone        Milestone  @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
+  title            String
+  description      String?
+  estimatedMinutes Int
+  difficulty       Int
+  priority         Int
+  deadline         DateTime
+  taskType         TaskType
+  xpReward         Int
+  status           TaskStatus @default(pending)
+  scheduleBlocks   ScheduleBlock[]
+  battleLogs       BattleLog[]
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  @@index([goalId, status])
+  @@index([milestoneId])
+  @@index([deadline])
+}
+
+model ScheduleBlock {
+  id        String              @id @default(cuid())
+  userId    String
+  user      User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  goalId    String
+  goal      Goal                @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  taskId    String
+  task      Task                @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  startTime DateTime
+  endTime   DateTime
+  status    ScheduleBlockStatus @default(scheduled)
+  source    ScheduleBlockSource @default(auto)
+  battleLogs BattleLog[]
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+
+  @@index([userId, startTime])
+  @@index([goalId])
+  @@index([taskId])
+}
+
+model BattleLog {
+  id              String              @id @default(cuid())
+  userId          String
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  goalId          String
+  goal            Goal                @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  taskId          String
+  task            Task                @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  scheduleBlockId String?
+  scheduleBlock   ScheduleBlock?      @relation(fields: [scheduleBlockId], references: [id], onDelete: SetNull)
+  actionType      BattleLogActionType
+  amount          Int                 @default(0)
+  message         String
+  createdAt       DateTime            @default(now())
+
+  @@unique([scheduleBlockId, actionType])
+  @@index([userId, createdAt])
+  @@index([goalId])
+}
+
+model AnalyticsEvent {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  eventName  String
+  entityType String?
+  entityId   String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([userId, eventName])
+  @@index([userId, createdAt])
+  @@index([createdAt])
+}
+
+model Feedback {
+  id        String       @id @default(cuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      FeedbackType @default(other)
+  page      String?
+  content   String
+  contact   String?
+  rating    Int?
+  createdAt DateTime     @default(now())
+
+  @@index([userId, createdAt])
+  @@index([type])
+}
+
+model BossGoal {
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title         String
+  type          GoalType
+  bossName      String
+  description   String?
+  deadlineAtUtc DateTime
+  totalHp       Int
+  currentHp     Int
+  priority      Int
+  status        BossStatus  @default(PLANNING)
+  aiPlanJson    Json?
+  stageTasks    StageTask[]
+  dailyQuests   DailyQuest[]
+  createdAtUtc  DateTime    @default(now())
+  updatedAtUtc  DateTime    @updatedAt
+
+  @@index([userId, status])
+}
+
+model StageTask {
+  id               String          @id @default(cuid())
+  bossGoalId       String
+  bossGoal         BossGoal        @relation(fields: [bossGoalId], references: [id], onDelete: Cascade)
+  title            String
+  description      String?
+  orderIndex       Int
+  estimatedMinutes Int
+  status           StageTaskStatus @default(NOT_STARTED)
+  dailyQuests      DailyQuest[]
+  createdAtUtc     DateTime        @default(now())
+  updatedAtUtc     DateTime        @updatedAt
+
+  @@index([bossGoalId, orderIndex])
+}
+
+model DailyQuest {
+  id                  String           @id @default(cuid())
+  bossGoalId          String
+  bossGoal            BossGoal         @relation(fields: [bossGoalId], references: [id], onDelete: Cascade)
+  stageTaskId         String?
+  stageTask           StageTask?       @relation(fields: [stageTaskId], references: [id], onDelete: SetNull)
+  title               String
+  description         String?
+  scheduledStartAtUtc DateTime
+  scheduledEndAtUtc   DateTime
+  estimatedMinutes    Int
+  damage              Int
+  xpReward            Int
+  status              DailyQuestStatus @default(PENDING)
+  completedAtUtc      DateTime?
+  createdAtUtc        DateTime         @default(now())
+  updatedAtUtc        DateTime         @updatedAt
+
+  @@index([bossGoalId, status])
+  @@index([scheduledStartAtUtc, scheduledEndAtUtc])
+}
+
+model BattleSettlement {
+  id                  String   @id @default(cuid())
+  userId              String
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date                String
+  totalDamage         Int
+  totalXp             Int
+  completedQuestCount Int
+  missedQuestCount    Int
+  bossHpRecovered     Int
+  summary             String
+  createdAtUtc        DateTime @default(now())
+
+  @@unique([userId, date])
+}
