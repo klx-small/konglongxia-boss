@@ -58,6 +58,47 @@ npm.cmd run build
 npm.cmd run e2e
 ```
 
+## Mock 模式部署到 Vercel
+
+第一轮内测不配置 DeepSeek 也可以部署。推荐使用：
+
+- GitHub 托管代码
+- Supabase PostgreSQL 提供云端数据库
+- Vercel 部署 Next.js 应用
+- `AI_PROVIDER=mock`
+- `ENABLE_DEEPSEEK=false`
+
+Vercel 环境变量至少配置：
+
+```env
+APP_ENV=staging
+ENABLE_INTERNAL_PAGES=true
+ENABLE_DEMO_SETUP=true
+ENABLE_ANALYTICS=true
+ENABLE_FEEDBACK=true
+ENABLE_DEEPSEEK=false
+
+AI_PROVIDER=mock
+DEEPSEEK_API_KEY=
+DEEPSEEK_BASE_URL=https://api.deepseek.com
+DEEPSEEK_MODEL=deepseek-chat
+FEEDBACK_URL=
+```
+
+同时配置 Supabase 提供的 `DATABASE_URL`。不要把真实数据库地址或 API Key 写入仓库。
+
+云端数据库迁移使用：
+
+```bash
+npx.cmd prisma migrate deploy
+```
+
+部署环境不要使用 `npx.cmd prisma migrate dev`。
+
+部署后先打开 `/api/health` 和 `/internal/readiness`。确认没有失败项后，再把 `/internal/test-plan` 发给第一轮内测同学。
+
+详细步骤见 [docs/DEPLOY_MOCK_STAGING.md](docs/DEPLOY_MOCK_STAGING.md)。
+
 ## 一键 Demo
 
 首页提供“一键体验恐龙侠”按钮，用于给没有任何课程、Boss、战役和排程数据的内测用户快速创建示例流程。
@@ -131,7 +172,7 @@ FEEDBACK_URL="https://example.com/feedback"
 生产环境默认不开放 internal 能力。如果确实要在内测部署环境打开，可配置：
 
 ```env
-ENABLE_INTERNAL_TOOLS="true"
+ENABLE_INTERNAL_PAGES="true"
 ```
 
 一键 Demo 在生产环境默认关闭。如需内测部署环境开启，可配置：

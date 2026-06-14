@@ -154,7 +154,11 @@ export const prismaInternalMetricsStore: InternalMetricsStore = {
 };
 
 export function isInternalAccessAllowed() {
-  return process.env.NODE_ENV !== "production" || process.env.ENABLE_INTERNAL_TOOLS === "true";
+  return (
+    process.env.NODE_ENV !== "production" ||
+    process.env.ENABLE_INTERNAL_PAGES === "true" ||
+    process.env.ENABLE_INTERNAL_TOOLS === "true"
+  );
 }
 
 function readSource(metadata: unknown): string {

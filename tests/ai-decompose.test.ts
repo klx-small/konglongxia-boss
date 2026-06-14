@@ -54,6 +54,18 @@ describe("decomposeGoal AI Provider", () => {
     expect(deepseekCreateMock).not.toHaveBeenCalled();
   });
 
+  it("ENABLE_DEEPSEEK=false 时即使 AI_PROVIDER=deepseek 也使用 mock", async () => {
+    vi.stubEnv("AI_PROVIDER", "deepseek");
+    vi.stubEnv("ENABLE_DEEPSEEK", "false");
+    vi.stubEnv("DEEPSEEK_API_KEY", "test-key");
+
+    const result = await decomposeGoal(baseGoal);
+
+    expect(result.source).toBe("mock");
+    expect(result.tasks.length).toBeGreaterThan(0);
+    expect(deepseekCreateMock).not.toHaveBeenCalled();
+  });
+
   it("AI_PROVIDER=deepseek 但缺少 DEEPSEEK_API_KEY 时 fallback", async () => {
     vi.stubEnv("AI_PROVIDER", "deepseek");
     vi.stubEnv("DEEPSEEK_API_KEY", "");

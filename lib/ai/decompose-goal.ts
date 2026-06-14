@@ -67,6 +67,10 @@ export async function decomposeGoal(goal: Goal): Promise<DecomposeGoalResult> {
 }
 
 function normalizeProvider(value: string | undefined): "mock" | "deepseek" | "proxy" {
+  if (process.env.ENABLE_DEEPSEEK === "false") {
+    return "mock";
+  }
+
   if (value === "deepseek" || value === "proxy") {
     return value;
   }

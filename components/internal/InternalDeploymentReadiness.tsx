@@ -41,6 +41,9 @@ export function InternalDeploymentReadiness({ data }: { data: DeploymentReadines
           <StatusTile label="AI_PROVIDER" value={data.environment.aiProvider} />
           <StatusTile label="DATABASE_URL" value={data.environment.databaseUrlStatus} />
           <StatusTile label="DeepSeek Key" value={data.environment.deepSeekKeyStatus} />
+          <StatusTile label="DeepSeek 开关" value={data.environment.deepSeekEnabled ? "已开启" : "已关闭"} />
+          <StatusTile label="Analytics" value={data.environment.analyticsEnabled ? "已开启" : "已关闭"} />
+          <StatusTile label="反馈系统" value={data.environment.feedbackEnabled ? "已开启" : "已关闭"} />
           <StatusTile label="反馈链接" value={data.environment.feedbackUrlStatus} />
           <StatusTile label="内部工具" value={data.environment.internalToolsEnabled ? "已开启" : "默认关闭"} />
           <StatusTile label="一键 Demo" value={data.environment.demoSetupEnabled ? "已开启" : "默认关闭"} />

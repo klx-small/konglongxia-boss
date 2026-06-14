@@ -26,7 +26,7 @@ describe("真实内测部署检查", () => {
       expect.objectContaining({
         key: "databaseConnected",
         status: "fail",
-        action: "检查 PostgreSQL 是否启动，并重新运行 npx.cmd prisma migrate dev。"
+        action: "检查 PostgreSQL 是否启动；本地使用 npx.cmd prisma migrate dev，部署环境使用 npx.cmd prisma migrate deploy。"
       })
     );
   });
@@ -38,8 +38,9 @@ describe("真实内测部署检查", () => {
         NODE_ENV: "production",
         DATABASE_URL: "postgresql://user:secret@localhost:5432/db",
         AI_PROVIDER: "deepseek",
+        ENABLE_DEEPSEEK: "true",
         DEEPSEEK_API_KEY: "sk-real-key",
-        ENABLE_INTERNAL_TOOLS: "true"
+        ENABLE_INTERNAL_PAGES: "true"
       }
     });
     const json = JSON.stringify(data);
@@ -47,6 +48,7 @@ describe("真实内测部署检查", () => {
     expect(json).not.toContain("secret");
     expect(json).not.toContain("sk-real-key");
     expect(data.environment.deepSeekKeyStatus).toBe("已配置");
+    expect(data.environment.deepSeekEnabled).toBe(true);
     expect(data.environment.databaseUrlStatus).toBe("已配置");
   });
 
@@ -57,7 +59,8 @@ describe("真实内测部署检查", () => {
         NODE_ENV: "production",
         DATABASE_URL: "postgresql://user:password@localhost:5432/db",
         AI_PROVIDER: "mock",
-        ENABLE_INTERNAL_TOOLS: "true",
+        ENABLE_DEEPSEEK: "false",
+        ENABLE_INTERNAL_PAGES: "true",
         ENABLE_DEMO_SETUP: "true"
       }
     });

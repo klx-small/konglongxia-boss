@@ -24,7 +24,7 @@ export default function RootLayout({
     <html lang="zh-CN">
       <body>
         <div className="min-h-dvh">
-          <main className="mx-auto w-full max-w-md px-4 pb-24 pt-4 md:max-w-5xl md:px-6 md:pb-10">
+          <main className="mx-auto min-h-dvh w-full max-w-md px-4 pb-28 pt-4 md:max-w-6xl md:px-6 md:pb-8">
             {children}
           </main>
           <FeedbackLink />

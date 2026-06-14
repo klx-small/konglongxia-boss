@@ -118,7 +118,7 @@ async function readCoreStatusSafely(store: DeploymentReadinessStore): Promise<De
 function buildEnvironment(env: DeploymentReadinessEnv) {
   const nodeEnv = env.NODE_ENV || "development";
   const aiProvider = env.AI_PROVIDER || "mock";
-  const internalToolsEnabled = env.ENABLE_INTERNAL_TOOLS === "true";
+  const internalToolsEnabled = env.ENABLE_INTERNAL_PAGES === "true" || env.ENABLE_INTERNAL_TOOLS === "true";
   const demoSetupEnabled = env.ENABLE_DEMO_SETUP === "true";
 
   return {
@@ -126,6 +126,9 @@ function buildEnvironment(env: DeploymentReadinessEnv) {
     aiProvider,
     internalToolsEnabled,
     demoSetupEnabled,
+    analyticsEnabled: env.ENABLE_ANALYTICS !== "false",
+    feedbackEnabled: env.ENABLE_FEEDBACK !== "false",
+    deepSeekEnabled: env.ENABLE_DEEPSEEK === "true",
     feedbackUrlStatus: env.FEEDBACK_URL ? "已配置" : "未配置",
     deepSeekKeyStatus: env.DEEPSEEK_API_KEY ? "已配置" : "未配置",
     databaseUrlStatus: env.DATABASE_URL ? "已配置" : "未配置"
@@ -149,7 +152,7 @@ function buildChecks(
       title: "数据库连接",
       description: "PostgreSQL 必须可连接，Prisma 才能读写课表、Boss、反馈和埋点。",
       status: coreStatus.databaseOk ? "pass" : "fail",
-      action: "检查 PostgreSQL 是否启动，并重新运行 npx.cmd prisma migrate dev。"
+      action: "检查 PostgreSQL 是否启动；本地使用 npx.cmd prisma migrate dev，部署环境使用 npx.cmd prisma migrate deploy。"
     },
     {
       key: "mockUserReady",
@@ -161,24 +164,26 @@ function buildChecks(
     {
       key: "aiProviderReady",
       title: "AI Provider",
-      description: "内测可以使用 mock，也可以配置 DeepSeek；DeepSeek 缺 Key 时会 fallback。",
+      description: "第一轮内测使用 mock；只有 ENABLE_DEEPSEEK=true 且 AI_PROVIDER=deepseek/proxy 时才会尝试 DeepSeek。",
       status:
-        environment.aiProvider === "deepseek" && environment.deepSeekKeyStatus === "未配置" ? "warn" : "pass",
-      action: "如果要测试 DeepSeek，请配置 DEEPSEEK_API_KEY；否则保持 AI_PROVIDER=mock。"
+        environment.deepSeekEnabled && environment.aiProvider === "deepseek" && environment.deepSeekKeyStatus === "未配置"
+          ? "warn"
+          : "pass",
+      action: "第一轮内测保持 ENABLE_DEEPSEEK=false、AI_PROVIDER=mock。"
     },
     {
       key: "feedbackReady",
       title: "反馈入口",
       description: "未配置 FEEDBACK_URL 时使用内置 /feedback 页面，仍可收集反馈。",
-      status: "pass",
-      action: "内测前确认 /feedback 能提交，或配置 FEEDBACK_URL 指向外部表单。"
+      status: environment.feedbackEnabled ? "pass" : "warn",
+      action: "内测前保持 ENABLE_FEEDBACK=true，并确认 /feedback 能提交。"
     },
     {
       key: "analyticsReady",
       title: "AnalyticsEvent",
       description: "已有埋点事件可以帮助观察漏斗和异常；空数据也不阻塞首轮内测。",
-      status: coreStatus.analyticsEventCount > 0 ? "pass" : "warn",
-      action: "运行一键 Demo 或完成一次主流程，让观察面板产生第一批事件。"
+      status: !environment.analyticsEnabled || coreStatus.analyticsEventCount === 0 ? "warn" : "pass",
+      action: "内测前保持 ENABLE_ANALYTICS=true；运行一键 Demo 或完成一次主流程，让观察面板产生第一批事件。"
     },
     {
       key: "demoDataReady",
@@ -192,7 +197,7 @@ function buildChecks(
       title: "内部工具开关",
       description: "internal 页面生产环境默认关闭，只有明确配置时才开放。",
       status: environment.nodeEnv === "production" && environment.internalToolsEnabled ? "warn" : "pass",
-      action: "真实生产环境不要开启 ENABLE_INTERNAL_TOOLS；内测部署环境可临时开启。"
+      action: "真实生产环境不要开启 ENABLE_INTERNAL_PAGES；内测部署环境可临时开启。"
     },
     {
       key: "demoSetupGuard",

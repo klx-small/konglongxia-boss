@@ -64,7 +64,7 @@ export function FeedbackForm() {
         <CardTitle>反馈给恐龙侠</CardTitle>
       </CardHeader>
       <CardContent>
-        <form className="space-y-4" onSubmit={submit}>
+        <form className="space-y-4 pb-2" onSubmit={submit}>
           <label className="grid gap-2 text-sm font-medium">
             <span>反馈类型</span>
             <select className="h-11 rounded-lg border bg-background px-3" name="type">
@@ -113,7 +113,7 @@ export function FeedbackForm() {
             </select>
           </label>
 
-          <Button className="w-full" disabled={isSubmitting} type="submit">
+          <Button className="mt-2 w-full" disabled={isSubmitting} type="submit">
             {isSubmitting ? "正在提交..." : "提交反馈"}
           </Button>
 

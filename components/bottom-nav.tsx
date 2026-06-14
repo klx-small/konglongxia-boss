@@ -12,7 +12,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="主导航"
-      className="fixed inset-x-0 bottom-0 z-20 border-t bg-card/95 px-2 py-2 shadow-sm backdrop-blur md:hidden"
+      className="fixed bottom-0 left-0 right-0 z-50 border-t bg-card/95 px-2 py-2 shadow-sm backdrop-blur md:hidden"
     >
       <div className="mx-auto grid max-w-md grid-cols-4 gap-1">
         {navItems.map((item) => {
@@ -33,4 +33,3 @@ export function BottomNav() {
     </nav>
   );
 }
-
